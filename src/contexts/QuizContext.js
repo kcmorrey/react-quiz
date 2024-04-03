@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { useContext } from 'react';
 import { createContext } from 'react';
 
@@ -48,11 +48,19 @@ function QuizProvider({ children }) {
 	const numQuestions = questions.length;
 	const maxPoints = questions.reduce((acc, val) => acc + val.points, 0);
 
-	const question = questions[questionIndex];
+	useEffect(
+		function () {
+			fetch('http://localhost:8000/questions')
+				.then((res) => res.json())
+				.then((data) => dispatch({ type: 'dataReceived', payload: data }))
+				.catch((err) => dispatch({ type: 'dataFailed' }));
+		},
+		[dispatch],
+	);
 
 	return (
 		<QuizContext.Provider
-			value={{ questions, status, questionIndex, answer, points, highScore, secondsRemaining, maxPoints, numQuestions, question, dispatch }}
+			value={{ questions, status, questionIndex, answer, points, highScore, secondsRemaining, maxPoints, numQuestions, dispatch }}
 		>
 			{children}
 		</QuizContext.Provider>
